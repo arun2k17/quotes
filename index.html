@@ -47,7 +47,7 @@
       }
 
       #quote-text {
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-size: clamp(2rem, 5vw, 3.5rem);
         font-weight: 400;
         font-style: italic;
         color: #f0f0f0;
@@ -61,7 +61,7 @@
         }
 
         #quote-text {
-          font-size: clamp(1.25rem, 3.5vw, 2rem);
+          font-size: clamp(1.75rem, 4.5vw, 2.75rem);
         }
       }
 
@@ -72,7 +72,7 @@
         }
 
         #quote-text {
-          font-size: 3.5rem;
+          font-size: 4.5rem;
           line-height: 1.7;
         }
       }
@@ -101,18 +101,41 @@
       // Configuration
       const ROTATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
       const FADE_DURATION = 1000; // 1 second fade
-      const STORAGE_KEY = "currentQuoteIndex";
+      const STORAGE_KEY_INDEX = "currentQuoteIndex";
+      const STORAGE_KEY_TIME = "quoteTimestamp";
 
       // Get DOM elements
       const quoteContainer = document.getElementById("quote-container");
       const quoteText = document.getElementById("quote-text");
 
-      // Load current quote index from localStorage, or start at 0
-      let currentIndex = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+      // Check if we need to rotate based on time elapsed
+      const storedIndex = localStorage.getItem(STORAGE_KEY_INDEX);
+      const storedTime = localStorage.getItem(STORAGE_KEY_TIME);
+      const now = Date.now();
+
+      let currentIndex;
+
+      if (storedIndex !== null && storedTime !== null) {
+        const timeSinceLastShown = now - parseInt(storedTime, 10);
+
+        if (timeSinceLastShown >= ROTATION_INTERVAL) {
+          // Time to rotate - pick a new random quote
+          const oldIndex = parseInt(storedIndex, 10);
+          do {
+            currentIndex = Math.floor(Math.random() * quotes.length);
+          } while (currentIndex === oldIndex && quotes.length > 1);
+        } else {
+          // Still within interval - use stored quote
+          currentIndex = parseInt(storedIndex, 10);
+        }
+      } else {
+        // First time - pick random quote
+        currentIndex = Math.floor(Math.random() * quotes.length);
+      }
 
       // Ensure index is valid
       if (currentIndex >= quotes.length || currentIndex < 0) {
-        currentIndex = 0;
+        currentIndex = Math.floor(Math.random() * quotes.length);
       }
 
       // Display a quote with fade-in effect
@@ -129,7 +152,7 @@
         }, FADE_DURATION);
       }
 
-      // Move to next quote (random selection) and save position
+      // Move to next quote (random selection) and save position with timestamp
       function nextQuote() {
         // Pick a random quote different from current one
         let newIndex;
@@ -138,11 +161,15 @@
         } while (newIndex === currentIndex && quotes.length > 1);
 
         currentIndex = newIndex;
-        localStorage.setItem(STORAGE_KEY, currentIndex.toString());
+        const now = Date.now();
+        localStorage.setItem(STORAGE_KEY_INDEX, currentIndex.toString());
+        localStorage.setItem(STORAGE_KEY_TIME, now.toString());
         displayQuote(currentIndex);
       }
 
-      // Initialize: show current quote
+      // Initialize: show current quote and save timestamp
+      localStorage.setItem(STORAGE_KEY_INDEX, currentIndex.toString());
+      localStorage.setItem(STORAGE_KEY_TIME, Date.now().toString());
       displayQuote(currentIndex);
 
       // Set up rotation timer
