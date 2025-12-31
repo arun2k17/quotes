@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quotes — A Digital Frame for Wisdom</title>
+    <meta
+      name="description"
+      content="Contemplative quotes on compassion, gratitude, and wisdom"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Crimson Text", serif;
+        background-color: #1a1a1a;
+        color: #e8e8e8;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        line-height: 1.8;
+      }
+
+      #quote-container {
+        max-width: 800px;
+        width: 100%;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+
+      #quote-container.visible {
+        opacity: 1;
+      }
+
+      #quote-text {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 400;
+        font-style: italic;
+        color: #f0f0f0;
+        margin: 0;
+      }
+
+      /* Mobile landscape optimization */
+      @media (max-width: 900px) and (orientation: landscape) {
+        body {
+          padding: 1.5rem;
+        }
+
+        #quote-text {
+          font-size: clamp(1.25rem, 3.5vw, 2rem);
+        }
+      }
+
+      /* Desktop optimization */
+      @media (min-width: 1200px) {
+        body {
+          padding: 3rem;
+        }
+
+        #quote-text {
+          font-size: 3.5rem;
+          line-height: 1.7;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quote-container">
+      <p id="quote-text"></p>
+    </div>
+
+    <script>
+      // Quotes array - curated collection on compassion and gratitude
+      const quotes = [
+        "Compassion is not a relationship between the healer and the wounded. It's a relationship between equals. — Pema Chödrön",
+        "Gratitude turns what we have into enough. — Melody Beattie",
+        "When we give cheerfully and accept gratefully, everyone is blessed. — Maya Angelou",
+        "Compassion is the basis of morality. — Arthur Schopenhauer",
+        "Acknowledging the good that you already have in your life is the foundation for all abundance. — Eckhart Tolle",
+        "If you want others to be happy, practice compassion. If you want to be happy, practice compassion. — Dalai Lama",
+        "Gratitude is the fairest blossom which springs from the soul. — Henry Ward Beecher",
+        "The purpose of human life is to serve, and to show compassion and the will to help others. — Albert Schweitzer",
+        "In ordinary life, we hardly realize that we receive a great deal more than we give, and that it is only with gratitude that life becomes rich. — Dietrich Bonhoeffer",
+        "Self-compassion is simply giving the same kindness to ourselves that we would give to others. — Christopher Germer",
+      ];
+
+      // Configuration
+      const ROTATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+      const FADE_DURATION = 1000; // 1 second fade
+      const STORAGE_KEY = "currentQuoteIndex";
+
+      // Get DOM elements
+      const quoteContainer = document.getElementById("quote-container");
+      const quoteText = document.getElementById("quote-text");
+
+      // Load current quote index from localStorage, or start at 0
+      let currentIndex = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+
+      // Ensure index is valid
+      if (currentIndex >= quotes.length || currentIndex < 0) {
+        currentIndex = 0;
+      }
+
+      // Display a quote with fade-in effect
+      function displayQuote(index) {
+        // Fade out
+        quoteContainer.classList.remove("visible");
+
+        setTimeout(() => {
+          // Update text
+          quoteText.textContent = quotes[index];
+
+          // Fade in
+          quoteContainer.classList.add("visible");
+        }, FADE_DURATION);
+      }
+
+      // Move to next quote (random selection) and save position
+      function nextQuote() {
+        // Pick a random quote different from current one
+        let newIndex;
+        do {
+          newIndex = Math.floor(Math.random() * quotes.length);
+        } while (newIndex === currentIndex && quotes.length > 1);
+
+        currentIndex = newIndex;
+        localStorage.setItem(STORAGE_KEY, currentIndex.toString());
+        displayQuote(currentIndex);
+      }
+
+      // Initialize: show current quote
+      displayQuote(currentIndex);
+
+      // Set up rotation timer
+      setInterval(nextQuote, ROTATION_INTERVAL);
+    </script>
+  </body>
+</html>
